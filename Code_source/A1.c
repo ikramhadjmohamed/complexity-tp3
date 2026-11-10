@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /* Alloue une matrice l x c (tableau de pointeurs vers des lignes) */
 int **allouer(int l, int c) {
@@ -40,6 +41,8 @@ void produit(int **A, int **B, int **C, int n, int m, int p) {
 
 int main(void) {
     int n, m, m2, p;
+
+    srand((unsigned)time(NULL));   /* initialise le generateur aleatoire */
 
     printf("Dimensions de A (n m) : ");
     scanf("%d %d", &n, &m);

@@ -40,19 +40,12 @@ void produit(int **A, int **B, int **C, int n, int m, int p) {
 }
 
 int main(void) {
-    int n, m, m2, p;
+    int n, m, p;
 
     srand((unsigned)time(NULL));   /* initialise le generateur aleatoire */
-
-    printf("Dimensions de A (n m) : ");
-    scanf("%d %d", &n, &m);
-    printf("Dimensions de B (lignes colonnes) : ");
-    scanf("%d %d", &m2, &p);
-
-    if (m != m2) {
-        printf("Produit impossible : colonnes de A (%d) != lignes de B (%d)\n", m, m2);
-        return 1;
-    }
+    
+    printf("n, m, p : ");
+    scanf("%d %d %d", &n, &m, &p);
 
     int **A = allouer(n, m);
     int **B = allouer(m, p);

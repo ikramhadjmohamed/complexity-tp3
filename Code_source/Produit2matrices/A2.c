@@ -41,8 +41,16 @@ void produit(int **A, int **B, int **C, int n, int m, int p) {
 
 int main(void) {
     srand(42);
-    int tailles[] = {100, 200, 400, 800, 1000};
+    int tailles[] = {100, 150, 200, 300, 400, 500, 600, 700, 800,
+                      900, 1000, 1200, 1400, 1600, 1800, 2000};
     int nb = sizeof(tailles) / sizeof(tailles[0]);
+
+    FILE *f = fopen("resultats_produit.csv", "w");
+    if (f == NULL) {
+        printf("Erreur ouverture fichier\n");
+        return 1;
+    }
+    fprintf(f, "n;temps\n");   /* en-tete */
 
     for (int t = 0; t < nb; t++) {
         int n = tailles[t];
@@ -59,9 +67,13 @@ int main(void) {
         clock_t fin = clock();
 
         double temps = (double)(fin - debut) / CLOCKS_PER_SEC;
-        printf("%d\t%f\n", n, temps);
+
+        printf("%d\t%f\n", n, temps);     /* suivi a l'ecran */
+        fprintf(f, "%d;%f\n", n, temps);  /* enregistrement */
 
         liberer(A, n); liberer(B, n); liberer(C, n);
     }
+
+    fclose(f);
     return 0;
 }

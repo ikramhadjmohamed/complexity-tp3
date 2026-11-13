@@ -4,6 +4,24 @@
 #include "generer.h"
 #include "sousMat.h"
 
+typedef int (*FctSousMat)(int **, int, int, int **, int, int, int *, int *);
+
+double mesurer_sousMat(FctSousMat f, int **A, int n, int m, int **B, int np, int mp) {
+    int pi, pj;
+    volatile int sink = 0;
+    long reps = 1;
+    for (;;) {
+        clock_t d = clock();
+        for (long r = 0; r < reps; r++) {
+            f(A, n, m, B, np, mp, &pi, &pj);
+            sink += pi;
+        }
+        double t = (double)(clock() - d) / CLOCKS_PER_SEC;
+        if (t >= 0.05 || reps >= 1000000000L) return t / reps;
+        reps *= 10;
+    }
+}
+
 int main(void) {
     srand(42);
     int tailles[] = {100, 150, 200, 300, 400, 500, 600, 700, 800,
@@ -35,18 +53,8 @@ int main(void) {
         int j0 = (n - mp) / 2;
         int **B = extraireBloc(A, i0, j0, np, mp);
 
-        /* 3. clock() autour de sousMat1(...) -> temps1 */
-        int pi, pj;
-        clock_t d1 = clock();
-        sousMat1(A, n, n, B, np, mp, &pi, &pj);
-        clock_t f1t = clock();
-        double temps1 = (double)(f1t - d1) / CLOCKS_PER_SEC;
-
-        /* 4. clock() autour de sousMat2(...) -> temps2 */
-        clock_t d2 = clock();
-        sousMat2(A, n, n, B, np, mp, &pi, &pj);
-        clock_t f2t = clock();
-        double temps2 = (double)(f2t - d2) / CLOCKS_PER_SEC;
+        double temps1 = mesurer_sousMat(sousMat1, A, n, n, B, np, mp);
+        double temps2 = mesurer_sousMat(sousMat2, A, n, n, B, np, mp);
 
         fprintf(f1, "%d;%f;%f\n", n, temps1, temps2);
         printf("[Exp1] n=%d  sousMat1=%f  sousMat2=%f\n", n, temps1, temps2);
@@ -81,16 +89,9 @@ int main(void) {
         int j0 = (m - mpv) / 2;
         int **B = extraireBloc(A2mat, i0, j0, npv, mpv);
 
-        int pi, pj;
-        clock_t d1 = clock();
-        sousMat1(A2mat, n, m, B, npv, mpv, &pi, &pj);
-        clock_t f1t = clock();
-        double temps1 = (double)(f1t - d1) / CLOCKS_PER_SEC;
+        double temps1 = mesurer_sousMat(sousMat1, A2mat, n, m, B, npv, mpv);
+        double temps2 = mesurer_sousMat(sousMat2, A2mat, n, m, B, npv, mpv);
 
-        clock_t d2 = clock();
-        sousMat2(A2mat, n, m, B, npv, mpv, &pi, &pj);
-        clock_t f2t = clock();
-        double temps2 = (double)(f2t - d2) / CLOCKS_PER_SEC;
 
         fprintf(f2, "%d;%f;%f\n", npv, temps1, temps2);
         printf("[Exp2] n'=%d  sousMat1=%f  sousMat2=%f\n", npv, temps1, temps2);

@@ -44,7 +44,7 @@ TP3
 Toutes les commandes se lancent depuis le dossier concerné (Windows, CMD).
 
 **Partie A — Produit de matrices**
-
+```
 cd Code_source\Produit2matrices
 gcc A1.c -o A1.exe
 A1.exe
@@ -53,10 +53,10 @@ gcc A2.c -o A2.exe
 A2.exe
 
 python graphe.py
-
+```
 
 **Partie B — Recherche de sous-matrice**
-
+```
 cd Code_source\Recherchesousmatrice
 gcc A1.c -o A1.exe
 A1.exe
@@ -68,8 +68,7 @@ gcc test.c generer.c sousMat.c -o test.exe
 test.exe
 
 python graphe_sousmat.py
-
-
+```
 L'ordre est important pour la partie B : `test.c` dépend de `generer.c` et `sousMat.c`
 (les deux doivent compiler sans erreur avant de lancer les mesures).
 

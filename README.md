@@ -115,14 +115,63 @@ Espace mémoire (trois matrices n × m, m × p, n × p) :
 
 ### Partie B : recherche d'une sous-matrice
 
-| Fonction | Principe | Complexité (pire cas) |
-|---|---|---|
-| `sousMat1` | A, B non triées : essaie chaque position de départ, compare bloc par bloc | O((n-n'+1)(m-m'+1) · n'·m') |
-| `sousMat2` | A, B triées par ligne : dichotomie pour localiser les candidats (`O(log m)` par ligne), rejet rapide via premier/dernier élément avant comparaison complète | position par ligne en O(log m), vérification en O(n'·m') par candidat retenu |
+**sousMat1 (naïve, A et B non triées).** On essaie chaque position de départ (i, j) où le
+bloc de B peut commencer dans A, et pour chaque position on compare les n'·m' éléments de
+B avec le bloc correspondant de A.
 
-Deux facteurs sont en tension dans ces formules : le **nombre de positions de départ**
-dépend de (n, m), le **coût de chaque vérification** dépend de (n', m'). Selon lequel
-domine, le temps mesuré peut croître, décroître, ou même ne pas être monotone.
+1. Nombre de positions de départ possibles : (n - n' + 1) × (m - m' + 1).
+2. Coût de la comparaison à une position, au pire (aucune différence trouvée avant la
+   dernière case) : n' × m' comparaisons.
+
+        comparaisons (pire cas) = (n - n' + 1) × (m - m' + 1) × n' × m'
+
+Donc, au pire cas :
+
+    T_sousMat1(n, m, n', m') = O( (n - n' + 1)(m - m' + 1) · n'·m' )
+
+**sousMat2 (A et B triées par ligne).** Pour chaque ligne i de A, une recherche
+dichotomique localise en O(log m) la ou les positions j où `A[i][j] = B[0][0]` (premier
+élément de la ligne 0 de B). Chaque candidat retenu est ensuite vérifié, avec un rejet
+rapide dès que le premier ou le dernier élément d'une ligne diffère :
+
+1. Dichotomie par ligne de A : O(log m) par ligne, soit O((n - n' + 1) · log m) au total
+   pour localiser les candidats.
+2. Vérification d'un candidat : O(1) si rejeté immédiatement (premier ou dernier élément
+   différent), O(n'·m') au pire si le candidat est presque identique à B ou s'il s'agit du
+   bon candidat.
+
+Donc, au pire cas (tous les candidats passent le rejet rapide, cas défavorable avec
+beaucoup de doublons) :
+
+    T_sousMat2(n, m, n', m') = O( (n - n' + 1) · log(m) + k · n'·m' )
+
+où k est le nombre de candidats qui passent le rejet rapide (k = 1 en moyenne sur des
+données sans doublon).
+
+**Comparaison des deux facteurs.** Dans les deux formules, deux quantités évoluent en sens
+opposé selon ce qu'on fait varier :
+
+| Paramètre qui augmente | Effet sur le nombre de positions | Effet sur le coût par position |
+|---|---|---|
+| n, m (A grandit, n', m' fixes) | augmente | inchangé |
+| n', m' (B grandit, n, m fixes) | diminue | augmente |
+
+C'est cette tension entre les deux effets qui explique les comportements observés
+expérimentalement (voir Observations), en particulier le comportement non monotone de
+`sousMat1` dans l'expérience 2.
+
+**Exemple de valeurs (ordre de grandeur du nombre de positions testées).**
+
+| n = m | n' = m' | Positions possibles (n-n'+1)² |
+|---|---|---|
+| 2000 | 10 | 1 980 025 |
+| 2500 | 100 | 5 764 801 |
+| 2500 | 2000 | 251 001 |
+
+Le nombre de positions chute fortement quand n' se rapproche de n (dernière ligne), ce qui
+réduit le travail de `sousMat1` sur ce facteur, même si chaque vérification devient alors
+plus coûteuse.
+
 
 ## Vérification expérimentale
 
